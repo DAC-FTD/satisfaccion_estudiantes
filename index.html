@@ -53,48 +53,104 @@
     .alerta-baja { background: #ffe0e0; color: #b03a2e; font-weight: bold;}
     .alerta-media { background: #fff6e0; color: #f48521; font-weight: bold;}
     .alerta-alta { background: #e6ffe0; color: #1c7c4c; font-weight: bold;}
+    /* Ajuste combos detalle */
+    .detalle-section { margin-bottom: 28px; }
+    .detalle-combos {
+      width: 100%;
+      margin-bottom: 18px;
+    }
+    .detalle-combo-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .combo-grande {
+      min-width: 350px;
+      max-width: 600px;
+      width: 100%;
+      font-size: 1.1em;
+      padding: 8px 12px;
+      border: 2px solid var(--azul-claro);
+      border-radius: 8px;
+      margin-right: 12px;
+    }
+    .criterio-section {
+      margin-top: 12px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+    .criterio-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    .combo-mediano {
+      min-width: 260px;
+      max-width: 350px;
+      width: 100%;
+      font-size: 1.05em;
+      padding: 8px 12px;
+      border: 2px solid var(--azul-claro);
+      border-radius: 8px;
+      margin-left: 8px;
+    }
+    /* Responsive para combos */
     @media (max-width: 700px) {
       .container { padding: 12px 2vw; }
       .big-badge { font-size: 1.5em; padding: 10px 18px;}
       table, th, td { font-size: 0.95em; }
+      .detalle-combo-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .criterio-group { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .combo-grande, .combo-mediano { min-width: 180px; max-width: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Dashboard de Facultades y Carreras</h1>
-    <!-- Valor global de las 4 facultades -->
-    <div class="global-porcentaje">
-      <span><b>Porcentaje Global de las 4 Facultades:</b></span>
-      <span id="globalPorcentaje" class="big-badge">--%</span>
-    </div>
-    <!-- Resumen Facultades -->
-    <h2>Resumen General de Facultades</h2>
-    <canvas id="chartFacultades" height="80"></canvas>
-    <div class="facultad-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Facultad</th>
-            <th>Total Global</th>
-            <th>Carrera Mejor Puntuada</th>
-            <th>Carrera Menor Puntuada</th>
-          </tr>
-        </thead>
-        <tbody id="tablaResumenFacultades"></tbody>
-      </table>
-    </div>
-    <!-- Selección de Facultad -->
-    <h2>Detalle por Facultad</h2>
-    <label><b>Selecciona facultad:</b></label>
-    <select id="facultadSelect"></select>
-    <div id="detalleFacultad"></div>
-    <!-- Global por criterio -->
-    <h2>Porcentaje Global por Criterio (todas las facultades)</h2>
-    <canvas id="chartGlobalCriterios" height="110"></canvas>
+    <!-- SECCIÓN: Porcentaje global -->
+    <section>
+      <div class="global-porcentaje">
+        <span><b>Porcentaje Global de las 4 Facultades:</b></span>
+        <span id="globalPorcentaje" class="big-badge">--%</span>
+      </div>
+    </section>
+    <!-- SECCIÓN: Resumen Facultades -->
+    <section>
+      <h2>Resumen General de Facultades</h2>
+      <canvas id="chartFacultades" height="80"></canvas>
+      <div class="facultad-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Facultad</th>
+              <th>Total Global</th>
+              <th>Carrera Mejor Puntuada</th>
+              <th>Carrera Menor Puntuada</th>
+            </tr>
+          </thead>
+          <tbody id="tablaResumenFacultades"></tbody>
+        </table>
+      </div>
+    </section>
+    <!-- SECCIÓN: Detalle por Facultad y combo de carrera -->
+    <section class="detalle-section">
+      <h2>Detalle por Facultad</h2>
+      <label><b>Selecciona facultad:</b></label>
+      <select id="facultadSelect"></select>
+      <div id="detalleFacultad"></div>
+    </section>
+    <!-- SECCIÓN: Global por criterio -->
+    <section>
+      <h2>Porcentaje Global por Criterio (todas las facultades)</h2>
+      <canvas id="chartGlobalCriterios" height="110"></canvas>
+    </section>
   </div>
   <script>
-    // Plugin para mostrar los valores en porcentaje encima de las barras y en radar
     Chart.register({
       id: 'valueLabelsFacultades',
       afterDatasetsDraw(chart, args, options) {
@@ -127,7 +183,6 @@
             const value = dataset.data[j];
             const angle = chart.scales.r.getIndexAngle(j);
             const radius = chart.scales.r.getDistanceFromCenterForValue(value) + 18;
-            // Polar to cartesian
             const x = chart.scales.r.xCenter + Math.cos(angle - Math.PI / 2) * radius;
             const y = chart.scales.r.yCenter + Math.sin(angle - Math.PI / 2) * radius;
             ctx.save();
@@ -164,7 +219,6 @@
       }
     });
 
-    // Criterios ajustados
     const criterios_ajustados = [
       "Comunicación institucional",
       "Áreas verdes y recreación",
@@ -244,13 +298,11 @@
       }
     ];
 
-    // Calcular porcentaje global de las 4 facultades (promedio de los totales globales)
     function mostrarGlobalPorcentaje() {
       const global = datos.reduce((s, f) => s + f.total, 0) / datos.length;
       document.getElementById('globalPorcentaje').textContent = global.toFixed(2) + "%";
     }
 
-    // ----- Resumen General de Facultades -----
     function cargarResumenFacultades() {
       const tbody = document.getElementById("tablaResumenFacultades");
       tbody.innerHTML = "";
@@ -273,11 +325,17 @@
 
     function cargarGraficoFacultades() {
       const ctx = document.getElementById('chartFacultades').getContext('2d');
+      const etiquetasFacultades = [
+        ["Facultad de", "Ingeniería"],
+        ["Facultad de", "Educación"],
+        ["Facultad de Ciencias Sociales,", "Educación Comercial y Derecho"],
+        ["Facultad de Ciencias", "de la Salud"]
+      ];
       if (chartFacultadesInstance) chartFacultadesInstance.destroy();
       chartFacultadesInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: datos.map(f => f.nombre),
+          labels: etiquetasFacultades,
           datasets: [{
             label: 'Total Global por Facultad',
             data: datos.map(f => f.total),
@@ -293,7 +351,16 @@
             valueLabelsFacultades: true
           },
           scales: {
-            x: { ticks: { color: "#1c3247", font: { weight: 'bold' } } },
+            x: {
+              ticks: {
+                color: "#1c3247",
+                font: { weight: 'bold', size: 13 },
+                maxRotation: 0,
+                minRotation: 0,
+              },
+              categoryPercentage: 0.7,
+              barPercentage: 0.9,
+            },
             y: { beginAtZero: true, max: 100, ticks: { color: "#335f7f"} }
           }
         },
@@ -317,26 +384,60 @@
       const idx = document.getElementById('facultadSelect').value || 0;
       const fac = datos[idx];
       let html = `<h3>${fac.nombre} (${fac.total.toFixed(2)}%)</h3>`;
+
+      // ORDENAR carreras de menor a mayor por porcentaje total
+      const carrerasOrdenadas = [...fac.carreras].sort((a, b) => a.total - b.total);
+
       html += `<table><thead><tr><th>Carrera</th><th>Total</th></tr></thead><tbody>`;
-      fac.carreras.forEach(c => {
+      carrerasOrdenadas.forEach(c => {
         let clase = c.total < 77 ? "alerta-baja" : (c.total < 80 ? "alerta-media" : "alerta-alta");
         html += `<tr><td>${c.nombre}</td><td class="${clase}">${c.total}%</td></tr>`;
       });
       html += `</tbody></table>`;
-      html += `<br><label><b>Ver detalle:</b></label><select id="carreraSelect"></select><canvas id="chartRadar" height="100"></canvas>`;
+
+      // SECCIÓN: combos de carrera y criterio
+      html += `
+        <div class="detalle-combos">
+          <div class="detalle-combo-row">
+            <label for="carreraSelect" style="font-weight:600; margin-right:8px;">Ver detalle:</label>
+            <select id="carreraSelect" class="combo-grande"></select>
+          </div>
+        </div>
+        <div class="criterio-section">
+          <div class="criterio-group">
+            <label for="criterioSelect" style="font-weight:600;">Selecciona criterio:</label>
+            <select id="criterioSelect" class="combo-mediano"></select>
+          </div>
+        </div>
+        <canvas id="chartDetalleCriterio" height="100"></canvas>
+        <canvas id="chartRadar" height="100"></canvas>
+      `;
       document.getElementById("detalleFacultad").innerHTML = html;
-      const sel = document.getElementById('carreraSelect');
+
+      const selCarrera = document.getElementById('carreraSelect');
       fac.carreras.forEach((c,i) => {
         let o = document.createElement("option");
         o.value = i;
         o.text = c.nombre;
-        sel.appendChild(o);
+        selCarrera.appendChild(o);
       });
-      sel.onchange = () => cargarGraficoRadar(fac);
+      selCarrera.onchange = () => cargarGraficoRadar(fac);
+
+      const selCriterio = document.getElementById('criterioSelect');
+      criterios_ajustados.forEach((criterio, i) => {
+        let o = document.createElement("option");
+        o.value = i;
+        o.text = criterio;
+        selCriterio.appendChild(o);
+      });
+      selCriterio.onchange = () => cargarGraficoDetalleCriterio(fac);
+
       cargarGraficoRadar(fac);
+      cargarGraficoDetalleCriterio(fac);
     }
 
     let radarChartInstance;
+    let chartDetalleCriterioInstance;
 
     function cargarGraficoRadar(fac) {
       const idx = document.getElementById('carreraSelect').value || 0;
@@ -367,11 +468,49 @@
       });
     }
 
-    // --------------------- GLOBAL POR CRITERIO -------------------------
+    function cargarGraficoDetalleCriterio(fac) {
+      const criterioIdx = document.getElementById('criterioSelect').value || 0;
+      const ctx = document.getElementById('chartDetalleCriterio').getContext('2d');
+
+      // Ordena carreras por porcentaje del criterio seleccionado (menor a mayor)
+      const carrerasOrdenadas = [...fac.carreras]
+        .map((c, idx) => ({ nombre: c.nombre, valor: c.criterios[criterioIdx] }))
+        .sort((a, b) => a.valor - b.valor);
+
+      const carrerasLabel = carrerasOrdenadas.map(c => c.nombre);
+      const valores = carrerasOrdenadas.map(c => c.valor);
+
+      if (chartDetalleCriterioInstance) chartDetalleCriterioInstance.destroy();
+
+      chartDetalleCriterioInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: carrerasLabel,
+          datasets: [{
+            label: criterios_ajustados[criterioIdx],
+            data: valores,
+            backgroundColor: 'rgba(252,126,0,0.7)',
+            borderColor: '#fc7e00',
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: true },
+            valueLabelsFacultades: true
+          },
+          scales: {
+            x: { ticks: { color: "#1c3247", font: { weight: 'bold', size: 13 } }, },
+            y: { beginAtZero: true, max: 100, ticks: { color: "#335f7f"} }
+          }
+        },
+        plugins: ['valueLabelsFacultades']
+      });
+    }
+
     let chartGlobalCriteriosInstance;
 
     function cargarGraficoGlobalCriterios() {
-      // Calcular promedio global por criterio (todas las carreras, todas las facultades)
       const criteriosCount = criterios_ajustados.length;
       const sumas = Array(criteriosCount).fill(0);
       let totalCarreras = 0;
@@ -410,9 +549,7 @@
         plugins: ['valueLabelsGlobalCriterios']
       });
     }
-    // --------------------- FIN GLOBAL POR CRITERIO -------------------------
 
-    // Inicializar todo
     mostrarGlobalPorcentaje();
     cargarResumenFacultades();
     cargarGraficoFacultades();
